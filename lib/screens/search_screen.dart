@@ -4,6 +4,7 @@ import '../models/search_result.dart';
 import '../models/guide.dart';
 import '../services/search_service.dart';
 
+//the state itself (the main widget)
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
 
@@ -11,7 +12,11 @@ class SearchScreen extends StatefulWidget {
   State<SearchScreen> createState() => _SearchScreenState();
 }
 
+//state object (holds changing values)
+// referred to as state class
 class _SearchScreenState extends State<SearchScreen> {
+  // variables that will change 
+  // initializing them here
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
   
@@ -154,6 +159,8 @@ class _SearchScreenState extends State<SearchScreen> {
     }
   }
 
+  //method that returns widget (builds the screen that appears on the app)
+  //telling flutter how the screen should look with the current data
   @override
   Widget build(BuildContext context) {
     return Scaffold(

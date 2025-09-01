@@ -1,13 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter/services.dart';
 import 'package:flex_seed_scheme/flex_seed_scheme.dart';
 import 'screens/main_navigation_screen.dart';
 import 'services/theme_service.dart';
 import 'services/local_storage_service.dart';
 import 'utils/theme_extensions.dart';
+import 'utils/logger.dart';
+// Error handler will be used when needed
+import 'config/app_config.dart';
+import 'constants/app_constants.dart';
+
 
 const Color primarySeedColor = Color(0xFF20130D); // your color (dark brownish)
-const Color secondarySeedColor = Color.fromARGB(255, 87, 70, 63); // optional (blue)
-const Color tertiarySeedColor = Color.fromARGB(255, 236, 235, 235); // optional (green)
+const Color secondarySeedColor = Color.fromARGB(
+  255,
+  87,
+  70,
+  63,
+); // optional (blue)
+const Color tertiarySeedColor = Color.fromARGB(
+  255,
+  236,
+  235,
+  235,
+); // optional (green)
 
 final ColorScheme schemeLight = SeedColorScheme.fromSeeds(
   brightness: Brightness.light,
@@ -21,11 +38,52 @@ final ColorScheme schemeDark = SeedColorScheme.fromSeeds(
   tones: FlexTones.vivid(Brightness.dark),
 );
 
-
 void main() async {
+  // Ensure Flutter binding is initialized
   WidgetsFlutterBinding.ensureInitialized();
-  await LocalStorageService.init();
-  await ThemeService().initialize();
+
+  // Set up global error handling
+  FlutterError.onError = (FlutterErrorDetails details) {
+    Logger.error(
+      'Flutter Error: ${details.exception}',
+      category: 'FLUTTER',
+      error: details.exception,
+      stackTrace: details.stack,
+    );
+  };
+
+  // Set preferred orientations
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+
+  // Initialize services
+  try {
+    //Supabase Initialization
+    await Supabase.initialize(
+      url: 'https://zkusbrqucelmnpitvowi.supabase.co',
+      anonKey: '<prefer publishable key instead of anon key for mobile and desktop apps>',
+    );
+
+    Logger.info('Initializing app services...');
+
+    await LocalStorageService.init();
+    Logger.info('Local storage service initialized');
+
+    await ThemeService().initialize();
+    Logger.info('Theme service initialized');
+
+    Logger.info('App initialization completed successfully');
+  } catch (e, stackTrace) {
+    Logger.error(
+      'Failed to initialize app services',
+      error: e,
+      stackTrace: stackTrace,
+    );
+  }
+
+  // Run the app
   runApp(const MyApp());
 }
 
@@ -38,24 +96,56 @@ class MyApp extends StatelessWidget {
       listenable: ThemeService(),
       builder: (context, child) {
         return MaterialApp(
-          title: 'Repair Guide App',
+          title: AppConstants.appName,
           debugShowCheckedModeBanner: false,
           themeMode: ThemeService().themeMode,
           theme: _buildLightTheme(),
           darkTheme: _buildDarkTheme(),
           home: const MainNavigationScreen(),
+
           // Enhanced accessibility and navigation
           builder: (context, child) {
+            // Set up global error handling for the widget tree
+            ErrorWidget.builder = (FlutterErrorDetails details) {
+              Logger.error(
+                'Widget Error: ${details.exception}',
+                category: 'WIDGET',
+                error: details.exception,
+                stackTrace: details.stack,
+              );
+
+              // Return a user-friendly error widget in production
+              if (AppConfig.isProduction) {
+                return Material(
+                  child: Container(
+                    color: Colors.red.shade50,
+                    child: const Center(
+                      child: Text(
+                        'Something went wrong',
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    ),
+                  ),
+                );
+              }
+
+              // Return default error widget in debug mode
+              return ErrorWidget(details.exception);
+            };
+
             return MediaQuery(
               data: MediaQuery.of(context).copyWith(
                 textScaler: MediaQuery.of(context).textScaler.clamp(
-                  minScaleFactor: 0.8,
-                  maxScaleFactor: 2.0,
+                  minScaleFactor: AppConfig.minTextScaleFactor,
+                  maxScaleFactor: AppConfig.maxTextScaleFactor,
                 ),
               ),
               child: child!,
             );
           },
+
+          // Navigation observer for logging
+          navigatorObservers: [_NavigationLogger()],
         );
       },
     );
@@ -65,14 +155,14 @@ class MyApp extends StatelessWidget {
     return ThemeData(
       colorScheme: schemeLight,
       useMaterial3: true,
-      
+
       // Add theme extensions
       extensions: const [
         AppSpacing.light,
         AppBorderRadius.light,
         AppElevation.light,
       ],
-      
+
       // Enhanced AppBar theme
       appBarTheme: AppBarTheme(
         backgroundColor: schemeLight.primary,
@@ -86,50 +176,51 @@ class MyApp extends StatelessWidget {
           fontWeight: FontWeight.w600,
         ),
       ),
-      
+
       // Enhanced Card theme
       cardTheme: CardThemeData(
         elevation: 2,
         shadowColor: schemeLight.shadow.withValues(alpha: 0.1),
         surfaceTintColor: schemeLight.surfaceTint,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         margin: const EdgeInsets.symmetric(vertical: 4),
       ),
-      
+
       // Enhanced Button themes
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           elevation: 2,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-          minimumSize: const Size(88, 44), // Accessibility: minimum touch target
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          minimumSize: const Size(
+            88,
+            44,
+          ), // Accessibility: minimum touch target
         ),
       ),
-      
+
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-          minimumSize: const Size(88, 44), // Accessibility: minimum touch target
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          minimumSize: const Size(
+            88,
+            44,
+          ), // Accessibility: minimum touch target
         ),
       ),
-      
+
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-          minimumSize: const Size(64, 44), // Accessibility: minimum touch target
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          minimumSize: const Size(
+            64,
+            44,
+          ), // Accessibility: minimum touch target
         ),
       ),
-      
+
       // Enhanced Input decoration
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
@@ -140,31 +231,34 @@ class MyApp extends StatelessWidget {
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: schemeLight.outline.withValues(alpha: 0.5)),
+          borderSide: BorderSide(
+            color: schemeLight.outline.withValues(alpha: 0.5),
+          ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
           borderSide: BorderSide(color: schemeLight.primary, width: 2),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 12,
+        ),
       ),
-      
+
       // Enhanced List tile theme
       listTileTheme: ListTileThemeData(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         minVerticalPadding: 8,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
-      
+
       // Enhanced Divider theme
       dividerTheme: DividerThemeData(
         color: schemeLight.outline.withValues(alpha: 0.2),
         thickness: 1,
         space: 1,
       ),
-      
+
       // Enhanced page transitions for smooth navigation
       pageTransitionsTheme: const PageTransitionsTheme(
         builders: {
@@ -175,10 +269,10 @@ class MyApp extends StatelessWidget {
           TargetPlatform.linux: FadeUpwardsPageTransitionsBuilder(),
         },
       ),
-      
+
       // Enhanced animation and interaction
       splashFactory: InkRipple.splashFactory,
-      
+
       // Enhanced text theme with better accessibility
       textTheme: _buildTextTheme(schemeLight),
     );
@@ -188,14 +282,14 @@ class MyApp extends StatelessWidget {
     return ThemeData(
       colorScheme: schemeDark,
       useMaterial3: true,
-      
+
       // Add theme extensions
       extensions: const [
         AppSpacing.dark,
         AppBorderRadius.dark,
         AppElevation.dark,
       ],
-      
+
       // Enhanced AppBar theme
       appBarTheme: AppBarTheme(
         backgroundColor: schemeDark.primary,
@@ -209,50 +303,51 @@ class MyApp extends StatelessWidget {
           fontWeight: FontWeight.w600,
         ),
       ),
-      
+
       // Enhanced Card theme
       cardTheme: CardThemeData(
         elevation: 2,
         shadowColor: schemeDark.shadow.withValues(alpha: 0.2),
         surfaceTintColor: schemeDark.surfaceTint,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         margin: const EdgeInsets.symmetric(vertical: 4),
       ),
-      
+
       // Enhanced Button themes
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           elevation: 2,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-          minimumSize: const Size(88, 44), // Accessibility: minimum touch target
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          minimumSize: const Size(
+            88,
+            44,
+          ), // Accessibility: minimum touch target
         ),
       ),
-      
+
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-          minimumSize: const Size(88, 44), // Accessibility: minimum touch target
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          minimumSize: const Size(
+            88,
+            44,
+          ), // Accessibility: minimum touch target
         ),
       ),
-      
+
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-          minimumSize: const Size(64, 44), // Accessibility: minimum touch target
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          minimumSize: const Size(
+            64,
+            44,
+          ), // Accessibility: minimum touch target
         ),
       ),
-      
+
       // Enhanced Input decoration
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
@@ -263,31 +358,34 @@ class MyApp extends StatelessWidget {
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: schemeDark.outline.withValues(alpha: 0.5)),
+          borderSide: BorderSide(
+            color: schemeDark.outline.withValues(alpha: 0.5),
+          ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
           borderSide: BorderSide(color: schemeDark.primary, width: 2),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 12,
+        ),
       ),
-      
+
       // Enhanced List tile theme
       listTileTheme: ListTileThemeData(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         minVerticalPadding: 8,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
-      
+
       // Enhanced Divider theme
       dividerTheme: DividerThemeData(
         color: schemeDark.outline.withValues(alpha: 0.2),
         thickness: 1,
         space: 1,
       ),
-      
+
       // Enhanced page transitions for smooth navigation
       pageTransitionsTheme: const PageTransitionsTheme(
         builders: {
@@ -298,10 +396,10 @@ class MyApp extends StatelessWidget {
           TargetPlatform.linux: FadeUpwardsPageTransitionsBuilder(),
         },
       ),
-      
+
       // Enhanced animation and interaction
       splashFactory: InkRipple.splashFactory,
-      
+
       // Enhanced text theme with better accessibility
       textTheme: _buildTextTheme(schemeDark),
     );
@@ -418,4 +516,37 @@ class MyApp extends StatelessWidget {
   }
 }
 
+/// Navigation observer for logging screen changes
+class _NavigationLogger extends NavigatorObserver {
+  @override
+  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    super.didPush(route, previousRoute);
+    _logNavigation('PUSH', route, previousRoute);
+  }
 
+  @override
+  void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    super.didPop(route, previousRoute);
+    _logNavigation('POP', route, previousRoute);
+  }
+
+  @override
+  void didReplace({Route<dynamic>? newRoute, Route<dynamic>? oldRoute}) {
+    super.didReplace(newRoute: newRoute, oldRoute: oldRoute);
+    if (newRoute != null && oldRoute != null) {
+      _logNavigation('REPLACE', newRoute, oldRoute);
+    }
+  }
+
+  void _logNavigation(
+    String action,
+    Route<dynamic> route,
+    Route<dynamic>? previousRoute,
+  ) {
+    final routeName = route.settings.name ?? route.runtimeType.toString();
+    final previousRouteName =
+        previousRoute?.settings.name ?? previousRoute?.runtimeType.toString();
+
+    Logger.navigation('$action: ${previousRouteName ?? 'null'} -> $routeName');
+  }
+}

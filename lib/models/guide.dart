@@ -1,4 +1,5 @@
 class Guide {
+  // properties
   final String id;
   final String title;
   final String? thumbnailUrl;
@@ -7,6 +8,7 @@ class Guide {
   final int completedSteps;
   final bool isBookmarked;
 
+  // constructor
   Guide({
     required this.id,
     required this.title,
@@ -43,7 +45,7 @@ class Guide {
     );
   }
 
-  // Create a copy with updated fields
+  // Create a copy guide with updated fields
   Guide copyWith({
     String? id,
     String? title,
@@ -64,7 +66,7 @@ class Guide {
     );
   }
 
-  // Calculate progress percentage
+  // Calculate progress percentage 
   double get progressPercentage {
     if (totalSteps == 0) return 0.0;
     return completedSteps / totalSteps;

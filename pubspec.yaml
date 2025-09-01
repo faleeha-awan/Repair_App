@@ -40,6 +40,13 @@ dependencies:
   shared_preferences: ^2.2.2
   file_picker: ^8.1.4
   image_picker: ^1.0.4
+  
+  # HTTP client for API integration (ready for backend)
+  http: ^1.1.0
+  
+  # JSON serialization (ready for API responses)
+  json_annotation: ^4.8.1
+  supabase_flutter: ^2.10.0
 
 dev_dependencies:
   flutter_test:
@@ -51,6 +58,10 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
+  
+  # JSON code generation (ready for API models)
+  json_serializable: ^6.7.1
+  build_runner: ^2.4.7
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
