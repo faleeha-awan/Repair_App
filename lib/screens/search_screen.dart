@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:my_app/utils/logger.dart';
 import '../models/category.dart';
 import '../models/search_result.dart';
 import '../models/guide.dart';
 import '../services/search_service.dart';
+import '../services/supabase_categories_service.dart';
+import '../services/supabase_guides_service.dart';
 
 //the state itself (the main widget)
 class SearchScreen extends StatefulWidget {
@@ -34,6 +37,7 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   void initState() {
     super.initState();
+    Logger.info("SearchScreen initState called"); // add this
     _loadCategories();
   }
 
@@ -44,10 +48,19 @@ class _SearchScreenState extends State<SearchScreen> {
     super.dispose();
   }
 
-  void _loadCategories() {
-    setState(() {
-      _categories = SearchService.getMockCategories();
-    });
+  Future<void> _loadCategories() async {
+    // optional: show a loading spinner by setting a flag here with setState
+    try {
+      final cats = await CategoryService.fetchCategories(); // await the DB call
+      setState(() {
+        _categories = cats; // update UI data
+      });
+    } catch (e) {
+      // good place to show a SnackBar/Toast, or fallback to mock if needed
+      setState(() {
+        _categories = []; // or keep previous
+      });
+    }
   }
 
   Future<void> _performSearch(String query) async {
@@ -102,20 +115,30 @@ class _SearchScreenState extends State<SearchScreen> {
     }
   }
 
-  void _navigateToCategory(Category category) {
+  Future <void> _navigateToCategory(Category category) async {
     setState(() {
       _navigationStack.add(category);
       _showSearchResults = false;
       _searchController.clear();
       _currentQuery = '';
-      
-      // Load guides for this category if it has guides
-      if (category.hasGuides) {
-        _categoryGuides = SearchService.getGuidesForCategory(category.id);
-      } else {
-        _categoryGuides = [];
-      }
+      _categoryGuides = []; //clear while loading
     });
+
+    // Load guides for this category if it has guides
+     try{
+          final guides = await GuideService.fetchGuidesForCategory(category.id);
+          setState(() {
+             _categoryGuides = guides;
+          });
+        }
+        catch (e){
+          //error handling
+          setState(() {
+            Logger.info ('Error fetching guides');
+            _categoryGuides = [];
+          });
+        }
+    
   }
 
   void _navigateBack() {

@@ -19,6 +19,7 @@ class Category {
   bool get hasSubcategories => subcategories.isNotEmpty;
 
   // Check if this category has guides
+  //Not being passed correctly so not used for now
   bool get hasGuides => guideIds.isNotEmpty;
 
   // Create a copy with updated fields

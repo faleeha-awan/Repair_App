@@ -63,7 +63,7 @@ void main() async {
     //Supabase Initialization
     await Supabase.initialize(
       url: 'https://zkusbrqucelmnpitvowi.supabase.co',
-      anonKey: '<prefer publishable key instead of anon key for mobile and desktop apps>',
+      anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InprdXNicnF1Y2VsbW5waXR2b3dpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA0NDQyODksImV4cCI6MjA2NjAyMDI4OX0.yukkplN9yTjjSypTThSQA95eruB0v6I7k9gc9UVrf2M',
     );
 
     Logger.info('Initializing app services...');
