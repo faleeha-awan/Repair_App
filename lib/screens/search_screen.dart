@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_app/services/supabase_steps_service.dart';
 import 'package:my_app/utils/logger.dart';
 import '../models/category.dart';
 import '../models/search_result.dart';
@@ -6,6 +7,7 @@ import '../models/guide.dart';
 import '../services/search_service.dart';
 import '../services/supabase_categories_service.dart';
 import '../services/supabase_guides_service.dart';
+import '../screens/guide_steps_screen.dart';
 
 //the state itself (the main widget)
 class SearchScreen extends StatefulWidget {
@@ -37,7 +39,6 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   void initState() {
     super.initState();
-    Logger.info("SearchScreen initState called"); // add this
     _loadCategories();
   }
 
@@ -838,12 +839,33 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
-  void _openGuide(Guide guide) {
+  void _openGuide(Guide guide) async {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Opening guide: ${guide.title}'),
         duration: const Duration(seconds: 2),
       ),
     );
+  
+    try{
+      //Fecth steps for this guide
+      final steps = await StepService.fetchStepsForGuide(guide.id);
+
+      //Navigate to the steps screen
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => GuideStepsScreen(
+            guide: guide,
+            steps: steps,
+          ),
+        ),
+      );
+    }catch(e){
+      //Show an error snackbar
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text ('Failed to load steps for ${guide.title}')),
+      );
+    }
   }
 }
