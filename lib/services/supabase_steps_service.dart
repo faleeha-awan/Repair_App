@@ -1,3 +1,4 @@
+import 'package:my_app/utils/logger.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/steps.dart';
 
@@ -9,8 +10,10 @@ class StepService{
     final response = await _client
     .from ('Repair_Steps')
     .select ('id, guide_id, title, image_url')
-    .eq ('id', guideId)
+    .eq ('guide_id', guideId)
     .order ('id', ascending: true);
+
+    Logger.info("Steps response: $response");
 
     final rows = List<Map<String, dynamic>>.from (response);
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/guide.dart';
 import '../services/local_storage_service.dart';
 import '../utils/dummy_data.dart';
+import 'guide_steps_screen.dart';
 
 class MyGuidesScreen extends StatefulWidget {
   const MyGuidesScreen({super.key});
@@ -41,6 +42,7 @@ class _MyGuidesScreenState extends State<MyGuidesScreen> {
         _isLoading = false;
       });
     } catch (e) {
+      // ⚠️ Consider logging this error with Logger.error for better debugging
       // Fallback to dummy data if there's an error
       setState(() {
         _savedGuides = DummyData.savedGuides;
@@ -69,6 +71,7 @@ class _MyGuidesScreenState extends State<MyGuidesScreen> {
         );
       }
     } catch (e) {
+      // ⚠️ Consider logging this error with Logger.error for better debugging
       // Show error message
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -83,10 +86,9 @@ class _MyGuidesScreenState extends State<MyGuidesScreen> {
   }
 
   void _navigateToGuideDetail(Guide guide) {
-    // Navigate to placeholder Guide Detail View screen
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => GuideDetailPlaceholderScreen(guide: guide),
+        builder: (context) => GuideStepsScreen(guide: guide, steps: const []),
       ),
     );
   }
@@ -305,6 +307,7 @@ class _MyGuidesScreenState extends State<MyGuidesScreen> {
     }
   }
 }
+
 
 // Placeholder Guide Detail View Screen
 class GuideDetailPlaceholderScreen extends StatelessWidget {

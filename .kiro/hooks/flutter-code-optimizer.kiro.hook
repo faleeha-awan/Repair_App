@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "name": "Flutter Code Optimizer",
+  "description": "Analyzes modified Flutter code for potential improvements including code smells, design patterns, and best practices. Generates suggestions for improving code quality while maintaining existing functionality, focusing on readability, maintainability, and performance optimizations.",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "lib/**/*.dart"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "A Flutter source file has been modified in the lib/ directory. Please analyze the saved file for potential improvements and optimizations. Focus on:\n\n1. **Code Quality Analysis**: Check for code smells, unused imports, and formatting issues\n2. **Flutter Best Practices**: Suggest performance-safe Flutter patterns and widget optimizations\n3. **Design Patterns**: Recommend appropriate architectural patterns where beneficial\n4. **Readability & Maintainability**: Improve code structure and naming conventions\n5. **Performance Optimizations**: Identify opportunities for better performance without breaking functionality\n\n**Important Constraints**:\n- Only optimize code within the saved file - do not restructure unrelated code\n- Never modify Supabase queries unless explicitly documented in a specification\n- Maintain existing functionality while improving code quality\n- Follow the project's established patterns (Service Layer, Repository Pattern, Clean Architecture)\n- Respect the naming conventions: snake_case for files, PascalCase for classes, camelCase for variables/methods\n\nProvide specific, actionable suggestions with code examples where helpful."
+  }
+}

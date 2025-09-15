@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 import '../models/guide.dart';
 import '../services/local_storage_service.dart';
 import '../utils/accessibility_utils.dart';
@@ -14,7 +15,6 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   List<Guide> _recentGuides = [];
   bool _isLoading = true;
-  final String _welcomeMessage = "We're here to guide you step by step";
 
   @override
   void initState() {
@@ -31,6 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
         _isLoading = false;
       });
     } catch (e) {
+      // ⚠️ Consider logging this error with Logger.error for better debugging
       setState(() {
         _isLoading = false;
       });
@@ -97,6 +98,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final isLargeScreen = ResponsiveUtils.isLargeScreen(context);
     final padding = isLargeScreen ? const EdgeInsets.all(24.0) : const EdgeInsets.all(16.0);
 
@@ -104,7 +106,7 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: Semantics(
           header: true,
-          child: const Text('Home'),
+          child: Text(l10n.home),
         ),
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Theme.of(context).colorScheme.onPrimary,
@@ -136,6 +138,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildWelcomeSection(BuildContext context, bool isLargeScreen) {
+    final l10n = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final iconSize = isLargeScreen ? 40.0 : 32.0;
@@ -165,7 +168,7 @@ class _HomeScreenState extends State<HomeScreen> {
             Semantics(
               header: true,
               child: Text(
-                _welcomeMessage,
+                l10n.welcomeMessage,
                 style: (isLargeScreen 
                     ? textTheme.headlineMedium 
                     : textTheme.headlineSmall)?.copyWith(
@@ -176,7 +179,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             SizedBox(height: isLargeScreen ? 12 : 8),
             Text(
-              'Find repair guides, upload manuals, and get expert help.',
+              l10n.welcomeDescription,
               style: (isLargeScreen 
                   ? textTheme.bodyLarge 
                   : textTheme.bodyMedium)?.copyWith(
@@ -190,6 +193,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildRecentGuidesSection(BuildContext context, bool isLargeScreen) {
+    final l10n = AppLocalizations.of(context)!;
     final textTheme = Theme.of(context).textTheme;
     final spacing = isLargeScreen ? 20.0 : 16.0;
 
@@ -202,7 +206,7 @@ class _HomeScreenState extends State<HomeScreen> {
             Semantics(
               header: true,
               child: Text(
-                'Recent Guides',
+                l10n.recentGuides,
                 style: (isLargeScreen 
                     ? textTheme.headlineSmall 
                     : textTheme.titleLarge)?.copyWith(
@@ -218,13 +222,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   onPressed: () {
                     AccessibilityUtils.announceAction(context, 'Navigating to My Guides tab');
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Navigate to My Guides tab'),
-                        duration: Duration(seconds: 2),
+                      SnackBar(
+                        content: Text('Navigate to ${l10n.myGuides} tab'),
+                        duration: const Duration(seconds: 2),
                       ),
                     );
                   },
-                  child: const Text('View All'),
+                  child: Text(l10n.viewAll),
                 ),
               ),
           ],
@@ -239,6 +243,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildEmptyState(BuildContext context, bool isLargeScreen) {
+    final l10n = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final iconSize = isLargeScreen ? 64.0 : 48.0;
@@ -268,7 +273,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             SizedBox(height: isLargeScreen ? 20 : 16),
             Text(
-              'No recent guides yet',
+              l10n.noRecentGuides,
               style: (isLargeScreen 
                   ? textTheme.titleLarge 
                   : textTheme.titleMedium)?.copyWith(
@@ -278,7 +283,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             SizedBox(height: isLargeScreen ? 12 : 8),
             Text(
-              'Start exploring to see them here!',
+              l10n.startExploring,
               style: (isLargeScreen 
                   ? textTheme.bodyLarge 
                   : textTheme.bodyMedium)?.copyWith(

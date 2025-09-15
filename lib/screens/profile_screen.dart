@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 import '../services/theme_service.dart';
 import '../services/local_storage_service.dart';
+import '../services/language_service.dart';
 import '../models/user_preferences.dart';
 import '../utils/responsive_utils.dart';
 import '../utils/accessibility_utils.dart';
+import '../widgets/language_selection_dialog.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -13,7 +16,7 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  bool _isLoggedIn = false; // Placeholder for authentication state
+  final bool _isLoggedIn = false; // Placeholder for authentication state
   UserPreferences? _userPreferences;
   bool _isLoading = true;
 
@@ -31,6 +34,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _isLoading = false;
       });
     } catch (e) {
+      // ⚠️ Consider logging this error with Logger.error for better debugging
       setState(() {
         _isLoading = false;
       });
@@ -47,14 +51,78 @@ class _ProfileScreenState extends State<ProfileScreen> {
       });
     }
     
-    AccessibilityUtils.announceAction(
-      context, 
-      value ? 'Dark mode enabled' : 'Light mode enabled'
+    if (mounted) {
+      AccessibilityUtils.announceAction(
+        context, 
+        value ? 'Dark mode enabled' : 'Light mode enabled'
+      );
+    }
+  }
+
+  Future<void> _showLanguageSelection() async {
+    if (_userPreferences == null) return;
+
+    showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return LanguageSelectionDialog(
+          currentLanguageCode: _userPreferences!.language,
+          onLanguageSelected: _changeLanguage,
+        );
+      },
     );
+  }
+
+  Future<void> _changeLanguage(String languageCode) async {
+    try {
+      // Update language service
+      final success = await LanguageService().changeLanguage(languageCode);
+      
+      if (success && _userPreferences != null) {
+        // Update local preferences state
+        final updatedPrefs = _userPreferences!.copyWith(language: languageCode);
+        setState(() {
+          _userPreferences = updatedPrefs;
+        });
+
+        if (mounted) {
+          final languageName = LanguageService().getLanguageDisplayName(languageCode);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Language changed to $languageName'),
+              duration: const Duration(seconds: 2),
+            ),
+          );
+          
+          AccessibilityUtils.announceAction(
+            context,
+            'Language changed to $languageName',
+          );
+        }
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to change language'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      // ⚠️ Consider logging this error with Logger.error for better debugging
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Error changing language'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final isLargeScreen = ResponsiveUtils.isLargeScreen(context);
     final padding = isLargeScreen ? const EdgeInsets.all(24.0) : const EdgeInsets.all(16.0);
 
@@ -62,7 +130,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       appBar: AppBar(
         title: Semantics(
           header: true,
-          child: const Text('Profile'),
+          child: Text(l10n.profile),
         ),
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Theme.of(context).colorScheme.onPrimary,
@@ -90,6 +158,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildUserInfoSection(BuildContext context, bool isLargeScreen) {
+    final l10n = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final padding = isLargeScreen ? 24.0 : 20.0;
@@ -106,7 +175,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Semantics(
                 header: true,
                 child: Text(
-                  'User Information',
+                  l10n.userInformation,
                   style: (isLargeScreen 
                       ? textTheme.headlineSmall 
                       : textTheme.titleLarge)?.copyWith(
@@ -183,7 +252,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         SizedBox(height: isLargeScreen ? 20 : 16),
                         Text(
-                          'Sign in to access your profile',
+                          l10n.signInToAccess,
                           style: (isLargeScreen 
                               ? textTheme.titleLarge 
                               : textTheme.titleMedium)?.copyWith(
@@ -206,7 +275,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ),
                                   );
                                 },
-                                child: const Text('Sign In'),
+                                child: Text(l10n.signIn),
                               ),
                             ),
                             SizedBox(width: isLargeScreen ? 16 : 12),
@@ -221,7 +290,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ),
                                   );
                                 },
-                                child: const Text('Sign Up'),
+                                child: Text(l10n.signUp),
                               ),
                             ),
                           ],
@@ -239,6 +308,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildAppSettingsSection(BuildContext context, bool isLargeScreen) {
+    final l10n = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final padding = isLargeScreen ? 24.0 : 20.0;
@@ -255,7 +325,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Semantics(
                 header: true,
                 child: Text(
-                  'App Settings',
+                  l10n.appSettings,
                   style: (isLargeScreen 
                       ? textTheme.headlineSmall 
                       : textTheme.titleLarge)?.copyWith(
@@ -275,7 +345,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     color: colorScheme.primary,
                   ),
                   title: Text(
-                    'Dark Mode',
+                    l10n.darkMode,
                     style: (isLargeScreen 
                         ? textTheme.bodyLarge 
                         : textTheme.bodyMedium)?.copyWith(
@@ -283,7 +353,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                   subtitle: Text(
-                    _userPreferences?.isDarkMode == true ? 'Dark theme enabled' : 'Light theme enabled',
+                    _userPreferences?.isDarkMode == true ? l10n.darkThemeEnabled : l10n.lightThemeEnabled,
                     style: (isLargeScreen 
                         ? textTheme.bodyMedium 
                         : textTheme.bodySmall)?.copyWith(
@@ -312,7 +382,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     color: colorScheme.primary,
                   ),
                   title: Text(
-                    'Notifications',
+                    l10n.notifications,
                     style: (isLargeScreen 
                         ? textTheme.bodyLarge 
                         : textTheme.bodyMedium)?.copyWith(
@@ -320,7 +390,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                   subtitle: Text(
-                    'Manage notification preferences',
+                    l10n.manageNotifications,
                     style: (isLargeScreen 
                         ? textTheme.bodyMedium 
                         : textTheme.bodySmall)?.copyWith(
@@ -358,16 +428,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
               Divider(height: isLargeScreen ? 32 : 24),
 
-              // Language Setting (placeholder)
+              // Language Setting
               Semantics(
-                label: 'Language settings. Currently set to ${_userPreferences?.language ?? 'English'}',
+                label: 'Language settings. Currently set to ${LanguageService().getLanguageDisplayName(_userPreferences?.language ?? 'en')}',
                 child: ListTile(
                   leading: Icon(
                     Icons.language,
                     color: colorScheme.primary,
                   ),
                   title: Text(
-                    'Language',
+                    l10n.language,
                     style: (isLargeScreen 
                         ? textTheme.bodyLarge 
                         : textTheme.bodyMedium)?.copyWith(
@@ -375,7 +445,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                   subtitle: Text(
-                    _userPreferences?.language ?? 'English',
+                    LanguageService().getLanguageDisplayName(_userPreferences?.language ?? 'en'),
                     style: (isLargeScreen 
                         ? textTheme.bodyMedium 
                         : textTheme.bodySmall)?.copyWith(
@@ -389,12 +459,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   onTap: () {
                     AccessibilityUtils.announceAction(context, 'Language settings opened');
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Language settings not implemented yet'),
-                        duration: Duration(seconds: 2),
-                      ),
-                    );
+                    _showLanguageSelection();
                   },
                 ),
               ),

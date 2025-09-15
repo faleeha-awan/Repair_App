@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "name": "Guide Opened Tracker",
+  "description": "Monitors code changes for when guides are marked as opened and automatically injects LocalStorageService.saveRecentGuide() calls if not already present, or adds a TODO comment if missing.",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "lib/**/*.dart"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Analyze the code changes in the modified Dart files. Look for any instances where a guide is being marked as \"opened\" (this could be through method calls, state changes, or variable assignments that indicate a guide has been opened by the user). \n\nIf you find such code:\n1. Check if there's already a call to `LocalStorageService.saveRecentGuide()` in the same function or nearby context\n2. If the call is missing, inject `LocalStorageService.saveRecentGuide(guideId)` at the appropriate location\n3. If LocalStorageService is not available or imported, add a comment `// TODO: sync with recent guides` above the function where the guide is marked as opened\n\nFocus on:\n- Method calls that suggest opening/viewing a guide\n- Navigation to guide screens\n- State changes that mark guides as active/current\n- Any code patterns that indicate guide access or interaction\n\nMake the necessary code modifications to ensure recent guide tracking is properly implemented."
+  }
+}

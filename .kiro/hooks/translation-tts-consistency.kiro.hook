@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "name": "Translation & TTS API Consistency",
+  "description": "When files containing 'translate' or 'tts' are saved, check that TranslationService and TtsService APIs are being called consistently. Add docstrings with usage examples and ensure stub methods exist in /lib/services/ without changing method signatures.",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "**/*.dart"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "A file containing the word 'translate' or 'tts' has been modified. Please:\n\n1. Check if the file uses TranslationService or TtsService APIs\n2. Verify that the API calls are consistent with established patterns\n3. If missing, add comprehensive docstrings with usage examples to any translation or TTS related methods\n4. Ensure stub methods exist in /lib/services/translation_service.dart and /lib/services/tts_service.dart\n5. Do NOT change existing method signatures - only add documentation and create missing stub methods\n6. Follow the Flutter service layer pattern established in the codebase\n7. Ensure proper error handling and async patterns are documented\n\nFocus on consistency, documentation, and maintaining the existing API contracts."
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "name": "Catch Block Error Logging",
+  "description": "Monitors catch blocks to ensure errors are properly logged with Logger.error for better debugging",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "lib/**/*.dart"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Analyze the recent changes to Dart files and look for any catch blocks that use `catch (e)` or similar error catching patterns. Check if each catch block contains a Logger.error call to log the caught error. If a catch block is missing error logging, suggest adding a comment: `// ⚠️ Consider logging this error with Logger.error for better debugging` right after the catch statement. Focus on identifying catch blocks that handle exceptions but don't log them properly."
+  }
+}

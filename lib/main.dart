@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/services.dart';
 import 'package:flex_seed_scheme/flex_seed_scheme.dart';
 import 'screens/main_navigation_screen.dart';
 import 'services/theme_service.dart';
 import 'services/local_storage_service.dart';
+import 'services/language_service.dart';
 import 'utils/theme_extensions.dart';
 import 'utils/logger.dart';
 // Error handler will be used when needed
 import 'config/app_config.dart';
 import 'constants/app_constants.dart';
-
+import 'l10n/app_localizations.dart';
 
 const Color primarySeedColor = Color(0xFF20130D); // your color (dark brownish)
 const Color secondarySeedColor = Color.fromARGB(
@@ -63,7 +65,8 @@ void main() async {
     //Supabase Initialization
     await Supabase.initialize(
       url: 'https://zkusbrqucelmnpitvowi.supabase.co',
-      anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InprdXNicnF1Y2VsbW5waXR2b3dpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA0NDQyODksImV4cCI6MjA2NjAyMDI4OX0.yukkplN9yTjjSypTThSQA95eruB0v6I7k9gc9UVrf2M',
+      anonKey:
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InprdXNicnF1Y2VsbW5waXR2b3dpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA0NDQyODksImV4cCI6MjA2NjAyMDI4OX0.yukkplN9yTjjSypTThSQA95eruB0v6I7k9gc9UVrf2M',
     );
 
     Logger.info('Initializing app services...');
@@ -73,6 +76,9 @@ void main() async {
 
     await ThemeService().initialize();
     Logger.info('Theme service initialized');
+
+    await LanguageService().initialize();
+    Logger.info('Language service initialized');
 
     Logger.info('App initialization completed successfully');
   } catch (e, stackTrace) {
@@ -93,7 +99,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
-      listenable: ThemeService(),
+      listenable: Listenable.merge([ThemeService(), LanguageService()]),
       builder: (context, child) {
         return MaterialApp(
           title: AppConstants.appName,
@@ -101,6 +107,17 @@ class MyApp extends StatelessWidget {
           themeMode: ThemeService().themeMode,
           theme: _buildLightTheme(),
           darkTheme: _buildDarkTheme(),
+
+          // Localization configuration
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: LanguageService.supportedLocales,
+          locale: LanguageService().currentLocale,
+
           home: const MainNavigationScreen(),
 
           // Enhanced accessibility and navigation

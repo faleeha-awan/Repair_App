@@ -1,0 +1,157 @@
+{
+  "@@locale": "en",
+  "appTitle": "Repair Guide",
+  "@appTitle": {
+    "description": "The title of the application"
+  },
+  "home": "Home",
+  "@home": {
+    "description": "Home tab label"
+  },
+  "search": "Search",
+  "@search": {
+    "description": "Search tab label"
+  },
+  "myGuides": "My Guides",
+  "@myGuides": {
+    "description": "My Guides tab label"
+  },
+  "chat": "Chat",
+  "@chat": {
+    "description": "Chat tab label"
+  },
+  "profile": "Profile",
+  "@profile": {
+    "description": "Profile tab label"
+  },
+  "welcomeMessage": "We're here to guide you step by step",
+  "@welcomeMessage": {
+    "description": "Welcome message on home screen"
+  },
+  "welcomeDescription": "Find repair guides, upload manuals, and get expert help.",
+  "@welcomeDescription": {
+    "description": "Welcome description on home screen"
+  },
+  "recentGuides": "Recent Guides",
+  "@recentGuides": {
+    "description": "Recent guides section title"
+  },
+  "viewAll": "View All",
+  "@viewAll": {
+    "description": "View all button text"
+  },
+  "noRecentGuides": "No recent guides yet",
+  "@noRecentGuides": {
+    "description": "Empty state title for recent guides"
+  },
+  "startExploring": "Start exploring to see them here!",
+  "@startExploring": {
+    "description": "Empty state description for recent guides"
+  },
+  "userInformation": "User Information",
+  "@userInformation": {
+    "description": "User information section title"
+  },
+  "signInToAccess": "Sign in to access your profile",
+  "@signInToAccess": {
+    "description": "Sign in prompt message"
+  },
+  "signIn": "Sign In",
+  "@signIn": {
+    "description": "Sign in button text"
+  },
+  "signUp": "Sign Up",
+  "@signUp": {
+    "description": "Sign up button text"
+  },
+  "appSettings": "App Settings",
+  "@appSettings": {
+    "description": "App settings section title"
+  },
+  "darkMode": "Dark Mode",
+  "@darkMode": {
+    "description": "Dark mode setting label"
+  },
+  "darkThemeEnabled": "Dark theme enabled",
+  "@darkThemeEnabled": {
+    "description": "Dark theme enabled description"
+  },
+  "lightThemeEnabled": "Light theme enabled",
+  "@lightThemeEnabled": {
+    "description": "Light theme enabled description"
+  },
+  "notifications": "Notifications",
+  "@notifications": {
+    "description": "Notifications setting label"
+  },
+  "manageNotifications": "Manage notification preferences",
+  "@manageNotifications": {
+    "description": "Notifications setting description"
+  },
+  "language": "Language",
+  "@language": {
+    "description": "Language setting label"
+  },
+  "selectLanguage": "Select Language",
+  "@selectLanguage": {
+    "description": "Language selection dialog title"
+  },
+  "english": "English",
+  "@english": {
+    "description": "English language option"
+  },
+  "spanish": "Spanish",
+  "@spanish": {
+    "description": "Spanish language option"
+  },
+  "french": "French",
+  "@french": {
+    "description": "French language option"
+  },
+  "german": "German",
+  "@german": {
+    "description": "German language option"
+  },
+  "italian": "Italian",
+  "@italian": {
+    "description": "Italian language option"
+  },
+  "portuguese": "Portuguese",
+  "@portuguese": {
+    "description": "Portuguese language option"
+  },
+  "chinese": "Chinese",
+  "@chinese": {
+    "description": "Chinese language option"
+  },
+  "japanese": "Japanese",
+  "@japanese": {
+    "description": "Japanese language option"
+  },
+  "korean": "Korean",
+  "@korean": {
+    "description": "Korean language option"
+  },
+  "arabic": "Arabic",
+  "@arabic": {
+    "description": "Arabic language option"
+  },
+  "cancel": "Cancel",
+  "@cancel": {
+    "description": "Cancel button text"
+  },
+  "select": "Select",
+  "@select": {
+    "description": "Select button text"
+  },
+  "languageChanged": "Language changed to {language}",
+  "@languageChanged": {
+    "description": "Language change confirmation message",
+    "placeholders": {
+      "language": {
+        "type": "String",
+        "example": "English"
+      }
+    }
+  }
+}

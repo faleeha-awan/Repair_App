@@ -61,6 +61,7 @@ class _ManualsChatScreenState extends State<ManualsChatScreen> {
         _scrollToBottom();
       });
     } catch (e) {
+      // ⚠️ Consider logging this error with Logger.error for better debugging
       setState(() {
         _isLoading = false;
       });
@@ -171,6 +172,7 @@ class _ManualsChatScreenState extends State<ManualsChatScreen> {
         await _addManual(fileName, file.path, type, fileSize);
       }
     } catch (e) {
+      // ⚠️ Consider logging this error with Logger.error for better debugging
       _showErrorSnackBar('Failed to pick file: ${e.toString()}');
     }
   }
@@ -190,6 +192,7 @@ class _ManualsChatScreenState extends State<ManualsChatScreen> {
         await _addManual(fileName, image.path, ManualType.camera, fileSize);
       }
     } catch (e) {
+      // ⚠️ Consider logging this error with Logger.error for better debugging
       _showErrorSnackBar('Failed to take photo: ${e.toString()}');
     }
   }
@@ -209,6 +212,7 @@ class _ManualsChatScreenState extends State<ManualsChatScreen> {
         await _addManual(fileName, image.path, ManualType.image, fileSize);
       }
     } catch (e) {
+      // ⚠️ Consider logging this error with Logger.error for better debugging
       _showErrorSnackBar('Failed to pick image: ${e.toString()}');
     }
   }

@@ -40,6 +40,7 @@ class LocalStorageService {
       
       return UserPreferences.defaultPreferences();
     } catch (e) {
+      // ⚠️ Consider logging this error with Logger.error for better debugging
       // Return default preferences if there's an error
       return UserPreferences.defaultPreferences();
     }
@@ -51,6 +52,7 @@ class LocalStorageService {
       final jsonString = jsonEncode(preferences.toJson());
       return await prefs.setString(_userPreferencesKey, jsonString);
     } catch (e) {
+      // ⚠️ Consider logging this error with Logger.error for better debugging
       return false;
     }
   }
@@ -68,6 +70,7 @@ class LocalStorageService {
       
       return [];
     } catch (e) {
+      // ⚠️ Consider logging this error with Logger.error for better debugging
       return [];
     }
   }
@@ -79,6 +82,7 @@ class LocalStorageService {
       final jsonString = jsonEncode(jsonList);
       return await prefs.setString(_recentGuidesKey, jsonString);
     } catch (e) {
+      // ⚠️ Consider logging this error with Logger.error for better debugging
       return false;
     }
   }
@@ -100,6 +104,7 @@ class LocalStorageService {
       
       return await saveRecentGuides(recentGuides);
     } catch (e) {
+      // ⚠️ Consider logging this error with Logger.error for better debugging
       return false;
     }
   }
@@ -110,6 +115,7 @@ class LocalStorageService {
       recentGuides.removeWhere((guide) => guide.id == guideId);
       return await saveRecentGuides(recentGuides);
     } catch (e) {
+      // ⚠️ Consider logging this error with Logger.error for better debugging
       return false;
     }
   }
@@ -127,6 +133,7 @@ class LocalStorageService {
       
       return [];
     } catch (e) {
+      // ⚠️ Consider logging this error with Logger.error for better debugging
       return [];
     }
   }
@@ -138,6 +145,7 @@ class LocalStorageService {
       final jsonString = jsonEncode(jsonList);
       return await prefs.setString(_savedGuidesKey, jsonString);
     } catch (e) {
+      // ⚠️ Consider logging this error with Logger.error for better debugging
       return false;
     }
   }
@@ -154,6 +162,7 @@ class LocalStorageService {
       
       return true; // Already saved
     } catch (e) {
+      // ⚠️ Consider logging this error with Logger.error for better debugging
       return false;
     }
   }
@@ -164,6 +173,7 @@ class LocalStorageService {
       savedGuides.removeWhere((guide) => guide.id == guideId);
       return await saveSavedGuides(savedGuides);
     } catch (e) {
+      // ⚠️ Consider logging this error with Logger.error for better debugging
       return false;
     }
   }
@@ -181,6 +191,7 @@ class LocalStorageService {
       
       return [];
     } catch (e) {
+      // ⚠️ Consider logging this error with Logger.error for better debugging
       return [];
     }
   }
@@ -192,6 +203,7 @@ class LocalStorageService {
       final jsonString = jsonEncode(jsonList);
       return await prefs.setString(_chatHistoryKey, jsonString);
     } catch (e) {
+      // ⚠️ Consider logging this error with Logger.error for better debugging
       return false;
     }
   }
@@ -208,6 +220,7 @@ class LocalStorageService {
       
       return await saveChatHistory(chatHistory);
     } catch (e) {
+      // ⚠️ Consider logging this error with Logger.error for better debugging
       return false;
     }
   }
@@ -217,6 +230,7 @@ class LocalStorageService {
       final prefs = await _preferences;
       return await prefs.remove(_chatHistoryKey);
     } catch (e) {
+      // ⚠️ Consider logging this error with Logger.error for better debugging
       return false;
     }
   }
@@ -234,6 +248,7 @@ class LocalStorageService {
       
       return [];
     } catch (e) {
+      // ⚠️ Consider logging this error with Logger.error for better debugging
       return [];
     }
   }
@@ -245,6 +260,7 @@ class LocalStorageService {
       final jsonString = jsonEncode(jsonList);
       return await prefs.setString(_uploadedManualsKey, jsonString);
     } catch (e) {
+      // ⚠️ Consider logging this error with Logger.error for better debugging
       return false;
     }
   }
@@ -261,6 +277,7 @@ class LocalStorageService {
       
       return await saveUploadedManuals(uploadedManuals);
     } catch (e) {
+      // ⚠️ Consider logging this error with Logger.error for better debugging
       return false;
     }
   }
@@ -271,6 +288,7 @@ class LocalStorageService {
       uploadedManuals.removeWhere((manual) => manual.id == manualId);
       return await saveUploadedManuals(uploadedManuals);
     } catch (e) {
+      // ⚠️ Consider logging this error with Logger.error for better debugging
       return false;
     }
   }
@@ -286,6 +304,7 @@ class LocalStorageService {
       await prefs.remove(_uploadedManualsKey);
       return true;
     } catch (e) {
+      // ⚠️ Consider logging this error with Logger.error for better debugging
       return false;
     }
   }

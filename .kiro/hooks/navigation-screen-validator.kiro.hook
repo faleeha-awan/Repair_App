@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "name": "Navigation Screen Validator",
+  "description": "Monitors Navigator.push and route additions in lib/screens/ to validate target screens exist with proper Scaffold and AppBar structure, creating placeholder files when needed",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "lib/screens/**/*.dart"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "A file in lib/screens/ has been modified. Please analyze the changes for any Navigator.push calls or route definitions. For each navigation target:\n\n1. Check if the target screen file exists in lib/screens/\n2. If it exists, verify it has:\n   - A proper Scaffold widget\n   - An AppBar (unless it's a modal or special case)\n   - Follows the project's screen naming conventions (_screen.dart suffix)\n3. If the target screen doesn't exist, create a placeholder file with:\n   - Proper StatefulWidget structure following project patterns\n   - Scaffold with AppBar\n   - TODO comments for implementation\n   - Correct imports and naming conventions\n\nFocus on ensuring navigation integrity and preventing runtime errors from missing routes or malformed screens."
+  }
+}

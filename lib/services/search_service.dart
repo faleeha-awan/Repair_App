@@ -188,43 +188,98 @@ class SearchService {
     return mockResults;
   }
 
-  // Mock search web
+  // Mock search web with enhanced placeholder results
   static Future<List<SearchResult>> searchWeb(String query) async {
     // Simulate network delay
     await Future.delayed(const Duration(milliseconds: 1200));
 
     if (query.isEmpty) return [];
 
-    // Mock external search results
-    return [
+    // Generate contextual web search results based on query
+    final List<SearchResult> webResults = [];
+    
+    // Add query-specific results
+    if (query.toLowerCase().contains('phone') || query.toLowerCase().contains('iphone')) {
+      webResults.addAll([
+        SearchResult(
+          id: 'web_phone_1',
+          title: 'iPhone Screen Replacement Tutorial - Step by Step',
+          description: 'Complete video guide showing professional iPhone screen replacement techniques with all necessary tools and safety tips.',
+          type: SearchResultType.external,
+          sourceUrl: 'https://youtube.com/watch?v=iphone-screen-repair',
+          sourceName: 'YouTube',
+          thumbnailUrl: 'https://img.youtube.com/vi/example/maxresdefault.jpg',
+          relevanceScore: 0.95,
+        ),
+        SearchResult(
+          id: 'web_phone_2',
+          title: 'iPhone Repair Guide - Official iFixit Manual',
+          description: 'Comprehensive repair documentation with high-quality photos, difficulty ratings, and complete parts list for iPhone repairs.',
+          type: SearchResultType.external,
+          sourceUrl: 'https://ifixit.com/device/iPhone',
+          sourceName: 'iFixit',
+          relevanceScore: 0.92,
+        ),
+      ]);
+    }
+    
+    if (query.toLowerCase().contains('laptop') || query.toLowerCase().contains('computer')) {
+      webResults.addAll([
+        SearchResult(
+          id: 'web_laptop_1',
+          title: 'Laptop Keyboard Replacement - Complete Guide',
+          description: 'Professional tutorial covering laptop keyboard removal, cleaning, and replacement for most major laptop brands.',
+          type: SearchResultType.external,
+          sourceUrl: 'https://youtube.com/watch?v=laptop-keyboard',
+          sourceName: 'YouTube',
+          relevanceScore: 0.90,
+        ),
+        SearchResult(
+          id: 'web_laptop_2',
+          title: 'Laptop Overheating Fix - TechSupport Wiki',
+          description: 'Detailed troubleshooting guide for laptop overheating issues including thermal paste replacement and fan cleaning.',
+          type: SearchResultType.external,
+          sourceUrl: 'https://reddit.com/r/techsupport/laptop-overheating',
+          sourceName: 'Reddit',
+          relevanceScore: 0.85,
+        ),
+      ]);
+    }
+
+    // Add generic high-quality results for any search
+    webResults.addAll([
       SearchResult(
-        id: 'web_1',
-        title: 'How to Fix $query - YouTube Tutorial',
-        description: 'Professional repair tutorial with detailed steps and tips.',
+        id: 'web_generic_1',
+        title: '$query Repair Discussion - Community Forum',
+        description: 'Active community discussion with real user experiences, troubleshooting tips, and repair success stories.',
         type: SearchResultType.external,
-        sourceUrl: 'https://youtube.com/watch?v=example',
-        sourceName: 'YouTube',
-        relevanceScore: 0.88,
-      ),
-      SearchResult(
-        id: 'web_2',
-        title: '$query Repair Guide - iFixit',
-        description: 'Comprehensive repair guide with tools and parts list.',
-        type: SearchResultType.external,
-        sourceUrl: 'https://ifixit.com/guide/example',
-        sourceName: 'iFixit',
-        relevanceScore: 0.85,
-      ),
-      SearchResult(
-        id: 'web_3',
-        title: 'DIY $query Repair Tips - Reddit',
-        description: 'Community discussion and tips from experienced repairers.',
-        type: SearchResultType.external,
-        sourceUrl: 'https://reddit.com/r/repair/example',
+        sourceUrl: 'https://reddit.com/r/repair/posts/${query.toLowerCase().replaceAll(' ', '-')}',
         sourceName: 'Reddit',
-        relevanceScore: 0.75,
+        relevanceScore: 0.78,
       ),
-    ];
+      SearchResult(
+        id: 'web_generic_2',
+        title: 'Professional $query Repair Services Near You',
+        description: 'Find certified repair technicians and service centers in your area with customer reviews and pricing information.',
+        type: SearchResultType.external,
+        sourceUrl: 'https://maps.google.com/search/${query.toLowerCase()}+repair',
+        sourceName: 'Google Maps',
+        relevanceScore: 0.72,
+      ),
+      SearchResult(
+        id: 'web_generic_3',
+        title: '$query Parts & Tools - Online Store',
+        description: 'High-quality replacement parts, specialized tools, and repair kits with fast shipping and warranty coverage.',
+        type: SearchResultType.external,
+        sourceUrl: 'https://repairparts.com/search/${query.toLowerCase()}',
+        sourceName: 'RepairParts.com',
+        relevanceScore: 0.68,
+      ),
+    ]);
+
+    // Sort by relevance score and return top 5 results
+    webResults.sort((a, b) => (b.relevanceScore ?? 0).compareTo(a.relevanceScore ?? 0));
+    return webResults.take(5).toList();
   }
 
   // Get mock guides for a category

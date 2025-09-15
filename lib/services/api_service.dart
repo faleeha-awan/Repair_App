@@ -79,6 +79,7 @@ class ApiService {
       return _getMockRecentGuides();
       
     } catch (e) {
+      // ⚠️ Consider logging this error with Logger.error for better debugging
       if (kDebugMode) {
         print('API Error fetching recent guides: $e');
       }
@@ -103,6 +104,7 @@ class ApiService {
       return _getMockGuideById(guideId);
       
     } catch (e) {
+      // ⚠️ Consider logging this error with Logger.error for better debugging
       if (kDebugMode) {
         print('API Error fetching guide $guideId: $e');
       }
@@ -127,6 +129,7 @@ class ApiService {
       await Future.delayed(const Duration(milliseconds: 200));
       
     } catch (e) {
+      // ⚠️ Consider logging this error with Logger.error for better debugging
       if (kDebugMode) {
         print('API Error updating guide progress: $e');
       }
@@ -155,6 +158,7 @@ class ApiService {
       return _getMockSearchResults(query);
       
     } catch (e) {
+      // ⚠️ Consider logging this error with Logger.error for better debugging
       if (kDebugMode) {
         print('API Error searching guides: $e');
       }
@@ -176,6 +180,7 @@ class ApiService {
       return _getMockExternalResults(query);
       
     } catch (e) {
+      // ⚠️ Consider logging this error with Logger.error for better debugging
       if (kDebugMode) {
         print('API Error searching external sources: $e');
       }
@@ -200,6 +205,7 @@ class ApiService {
       return _getMockCategories();
       
     } catch (e) {
+      // ⚠️ Consider logging this error with Logger.error for better debugging
       if (kDebugMode) {
         print('API Error fetching categories: $e');
       }
@@ -232,6 +238,7 @@ class ApiService {
       return _getMockChatResponse(message);
       
     } catch (e) {
+      // ⚠️ Consider logging this error with Logger.error for better debugging
       if (kDebugMode) {
         print('API Error sending chat message: $e');
       }
@@ -258,6 +265,7 @@ class ApiService {
       return _getMockUploadedManual(fileName);
       
     } catch (e) {
+      // ⚠️ Consider logging this error with Logger.error for better debugging
       if (kDebugMode) {
         print('API Error uploading manual: $e');
       }
@@ -277,6 +285,7 @@ class ApiService {
       return 'This is the extracted text from the manual. It contains step-by-step instructions for repair procedures.';
       
     } catch (e) {
+      // ⚠️ Consider logging this error with Logger.error for better debugging
       if (kDebugMode) {
         print('API Error processing manual OCR: $e');
       }
@@ -322,6 +331,7 @@ class ApiService {
       );
       
     } catch (e) {
+      // ⚠️ Consider logging this error with Logger.error for better debugging
       if (kDebugMode) {
         print('API Error signing in: $e');
       }
@@ -354,6 +364,7 @@ class ApiService {
       );
       
     } catch (e) {
+      // ⚠️ Consider logging this error with Logger.error for better debugging
       if (kDebugMode) {
         print('API Error signing up: $e');
       }
@@ -373,6 +384,7 @@ class ApiService {
       clearAuthToken();
       
     } catch (e) {
+      // ⚠️ Consider logging this error with Logger.error for better debugging
       if (kDebugMode) {
         print('API Error signing out: $e');
       }
@@ -410,6 +422,7 @@ class ApiService {
     try {
       return guides.firstWhere((guide) => guide.id == guideId);
     } catch (e) {
+      // ⚠️ Consider logging this error with Logger.error for better debugging
       return null;
     }
   }

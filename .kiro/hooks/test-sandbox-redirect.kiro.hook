@@ -1,0 +1,18 @@
+{
+  "enabled": true,
+  "name": "Test Sandbox Redirect",
+  "description": "Redirects all new tests to /tests_sandbox/ directory, logs suggested tests to backlog, and only allows smoke test in /test/ until explicitly approved",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "test/**/*.dart",
+      "tests_sandbox/**/*.dart",
+      "lib/**/*.dart"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "When creating or modifying tests:\n1. Redirect all new tests (except app_launch_test.dart smoke test) to /tests_sandbox/ directory\n2. Log any suggested tests into /docs/test_backlog.md with description and rationale\n3. Only allow the smoke test (app_launch_test.dart) to remain in /test/ until user explicitly approves\n4. When running tasks and performing tests to verify functionality, if you encounter unrelated issues not specific to the feature being built, do NOT attempt to solve them unless explicitly given permission by the user\n5. Focus only on the specific feature being tested and ignore other system issues unless directed otherwise"
+  }
+}

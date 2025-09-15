@@ -57,6 +57,8 @@ class _SearchScreenState extends State<SearchScreen> {
         _categories = cats; // update UI data
       });
     } catch (e) {
+      // ⚠️ Consider logging this error with Logger.error for better debugging
+      Logger.error('Error loading categories', error: e);
       // good place to show a SnackBar/Toast, or fallback to mock if needed
       setState(() {
         _categories = []; // or keep previous
@@ -89,6 +91,8 @@ class _SearchScreenState extends State<SearchScreen> {
         _isSearching = false;
       });
     } catch (e) {
+      // ⚠️ Consider logging this error with Logger.error for better debugging
+      Logger.error('Error performing database search', error: e);
       setState(() {
         _isSearching = false;
       });
@@ -110,6 +114,8 @@ class _SearchScreenState extends State<SearchScreen> {
         _isSearchingWeb = false;
       });
     } catch (e) {
+      // ⚠️ Consider logging this error with Logger.error for better debugging
+      Logger.error('Error performing web search', error: e);
       setState(() {
         _isSearchingWeb = false;
       });
@@ -133,9 +139,9 @@ class _SearchScreenState extends State<SearchScreen> {
           });
         }
         catch (e){
-          //error handling
+          // ⚠️ Consider logging this error with Logger.error for better debugging
+          Logger.error('Error fetching guides for category', error: e);
           setState(() {
-            Logger.info ('Error fetching guides');
             _categoryGuides = [];
           });
         }
@@ -370,27 +376,77 @@ class _SearchScreenState extends State<SearchScreen> {
           _buildLoadingPlaceholder()
         else if (_webResults.isEmpty && !_isSearchingWeb)
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-              borderRadius: BorderRadius.circular(8),
+              gradient: LinearGradient(
+                colors: [
+                  Theme.of(context).colorScheme.secondaryContainer.withValues(alpha: 0.3),
+                  Theme.of(context).colorScheme.secondaryContainer.withValues(alpha: 0.1),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+                color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.2),
               ),
             ),
-            child: Row(
+            child: Column(
               children: [
-                Icon(
-                  Icons.info_outline,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  size: 20,
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        Icons.public,
+                        color: Theme.of(context).colorScheme.secondary,
+                        size: 24,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Search the Web',
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Find repair guides from YouTube, iFixit, Reddit, and more',
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    'Click "Web" button to search external sources',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: _searchController.text.isNotEmpty
+                        ? () => _performWebSearch(_searchController.text)
+                        : null,
+                    icon: const Icon(Icons.search, size: 18),
+                    label: Text('Search Web for "${_currentQuery}"'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).colorScheme.secondary,
+                      foregroundColor: Theme.of(context).colorScheme.onSecondary,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
                   ),
                 ),
@@ -473,6 +529,7 @@ class _SearchScreenState extends State<SearchScreen> {
   Widget _buildSearchResultCard(SearchResult result) {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
+      elevation: result.type == SearchResultType.external ? 2 : 1,
       child: InkWell(
         onTap: () => _openSearchResult(result),
         borderRadius: BorderRadius.circular(12),
@@ -481,38 +538,143 @@ class _SearchScreenState extends State<SearchScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Title and source badge row
               Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Source icon for web results
+                  if (result.type == SearchResultType.external) ...[
+                    Container(
+                      width: 24,
+                      height: 24,
+                      margin: const EdgeInsets.only(right: 12, top: 2),
+                      decoration: BoxDecoration(
+                        color: _getSourceColor(result.sourceName).withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Icon(
+                        _getSourceIcon(result.sourceName),
+                        size: 16,
+                        color: _getSourceColor(result.sourceName),
+                      ),
+                    ),
+                  ],
+                  // Title
                   Expanded(
                     child: Text(
                       result.title,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w600,
+                        color: result.type == SearchResultType.external
+                            ? Theme.of(context).colorScheme.primary
+                            : null,
                       ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
+                  // Source badge for web results
                   if (result.type == SearchResultType.external) ...[
                     const SizedBox(width: 8),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.2),
+                        color: _getSourceColor(result.sourceName).withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: _getSourceColor(result.sourceName).withValues(alpha: 0.3),
+                          width: 1,
+                        ),
+                      ),
+                      child: Text(
+                        result.sourceName ?? 'Web',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: _getSourceColor(result.sourceName),
+                          fontWeight: FontWeight.w600,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+              
+              const SizedBox(height: 12),
+              
+              // Description
+              Text(
+                result.description,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  height: 1.4,
+                ),
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+              ),
+              
+              const SizedBox(height: 12),
+              
+              // Bottom row with URL preview and relevance
+              Row(
+                children: [
+                  // URL preview for web results
+                  if (result.type == SearchResultType.external && result.sourceUrl != null) ...[
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.link,
+                              size: 14,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+                            ),
+                            const SizedBox(width: 6),
+                            Expanded(
+                              child: Text(
+                                _formatUrl(result.sourceUrl!),
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                                  fontSize: 11,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                  ],
+                  
+                  // Relevance score
+                  if (result.relevanceScore != null) ...[
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: _getRelevanceColor(result.relevanceScore!).withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(4),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(
-                            Icons.public,
+                            Icons.star,
                             size: 12,
-                            color: Theme.of(context).colorScheme.secondary,
+                            color: _getRelevanceColor(result.relevanceScore!),
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            result.sourceName ?? 'Web',
+                            '${(result.relevanceScore! * 100).toInt()}%',
                             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Theme.of(context).colorScheme.secondary,
-                              fontWeight: FontWeight.w500,
+                              color: _getRelevanceColor(result.relevanceScore!),
+                              fontWeight: FontWeight.w600,
+                              fontSize: 11,
                             ),
                           ),
                         ],
@@ -521,39 +683,66 @@ class _SearchScreenState extends State<SearchScreen> {
                   ],
                 ],
               ),
-              const SizedBox(height: 8),
-              Text(
-                result.description,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-              if (result.relevanceScore != null) ...[
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Icon(
-                      Icons.star,
-                      size: 16,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      'Relevance: ${(result.relevanceScore! * 100).toInt()}%',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
             ],
           ),
         ),
       ),
     );
+  }
+
+  // Helper method to get source-specific icons
+  IconData _getSourceIcon(String? sourceName) {
+    switch (sourceName?.toLowerCase()) {
+      case 'youtube':
+        return Icons.play_circle_outline;
+      case 'reddit':
+        return Icons.forum;
+      case 'ifixit':
+        return Icons.build_circle;
+      case 'google maps':
+        return Icons.location_on;
+      default:
+        return Icons.public;
+    }
+  }
+
+  // Helper method to get source-specific colors
+  Color _getSourceColor(String? sourceName) {
+    switch (sourceName?.toLowerCase()) {
+      case 'youtube':
+        return Colors.red;
+      case 'reddit':
+        return Colors.orange;
+      case 'ifixit':
+        return Colors.blue;
+      case 'google maps':
+        return Colors.green;
+      default:
+        return Theme.of(context).colorScheme.secondary;
+    }
+  }
+
+  // Helper method to get relevance-based colors
+  Color _getRelevanceColor(double score) {
+    if (score >= 0.8) return Colors.green;
+    if (score >= 0.6) return Colors.orange;
+    return Colors.grey;
+  }
+
+  // Helper method to format URLs for display
+  String _formatUrl(String url) {
+    try {
+      final uri = Uri.parse(url);
+      String domain = uri.host;
+      if (domain.startsWith('www.')) {
+        domain = domain.substring(4);
+      }
+      return domain;
+    } catch (e) {
+      // ⚠️ Consider logging this error with Logger.error for better debugging
+      Logger.error('Failed to parse URL for display', error: e);
+      return url;
+    }
   }
 
   Widget _buildCategoryNavigation() {
@@ -827,16 +1016,64 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   void _openSearchResult(SearchResult result) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          result.type == SearchResultType.external
-              ? 'Opening external link: ${result.title}'
-              : 'Opening guide: ${result.title}',
+    if (result.type == SearchResultType.external) {
+      // For web results, show a more detailed message with source
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              Icon(
+                _getSourceIcon(result.sourceName),
+                color: Colors.white,
+                size: 20,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'Opening ${result.sourceName ?? 'Web'} Link',
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                    Text(
+                      result.title,
+                      style: const TextStyle(fontSize: 12),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: _getSourceColor(result.sourceName),
+          duration: const Duration(seconds: 3),
+          action: SnackBarAction(
+            label: 'COPY URL',
+            textColor: Colors.white,
+            onPressed: () {
+              // In a real app, you would copy the URL to clipboard
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('URL copied to clipboard'),
+                  duration: Duration(seconds: 1),
+                ),
+              );
+            },
+          ),
         ),
-        duration: const Duration(seconds: 2),
-      ),
-    );
+      );
+    } else {
+      // For internal guides, keep the existing behavior
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Opening guide: ${result.title}'),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
   }
 
   void _openGuide(Guide guide) async {
@@ -862,6 +1099,8 @@ class _SearchScreenState extends State<SearchScreen> {
         ),
       );
     }catch(e){
+      // ⚠️ Consider logging this error with Logger.error for better debugging
+      Logger.error('Failed to load steps for guide', error: e);
       //Show an error snackbar
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text ('Failed to load steps for ${guide.title}')),
