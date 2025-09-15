@@ -9,11 +9,7 @@ class GuideStepsScreen extends StatefulWidget {
   final Guide guide;
   final List<StepModel> steps;
 
-  const GuideStepsScreen({
-    super.key,
-    required this.guide,
-    required this.steps,
-  });
+  const GuideStepsScreen({super.key, required this.guide, required this.steps});
 
   @override
   State<GuideStepsScreen> createState() => _GuideStepsScreenState();
@@ -27,10 +23,7 @@ class _GuideStepsScreenState extends State<GuideStepsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.guide.title),
-        elevation: 0,
-      ),
+      appBar: AppBar(title: Text(widget.guide.title), elevation: 0),
       body: Column(
         children: [
           _buildTranslationBar(),
@@ -53,7 +46,9 @@ class _GuideStepsScreenState extends State<GuideStepsScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+        color: Theme.of(
+          context,
+        ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
         border: Border(
           bottom: BorderSide(
             color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
@@ -82,13 +77,15 @@ class _GuideStepsScreenState extends State<GuideStepsScreen> {
                 value: _selectedLanguage,
                 isDense: true,
                 items: TranslationService.getSupportedLanguageCodes()
-                    .map((code) => DropdownMenuItem(
-                          value: code,
-                          child: Text(
-                            TranslationService.getLanguageName(code),
-                            style: const TextStyle(fontSize: 14),
-                          ),
-                        ))
+                    .map(
+                      (code) => DropdownMenuItem(
+                        value: code,
+                        child: Text(
+                          TranslationService.getLanguageName(code),
+                          style: const TextStyle(fontSize: 14),
+                        ),
+                      ),
+                    )
                     .toList(),
                 onChanged: (String? newLanguage) {
                   if (newLanguage != null) {
@@ -130,28 +127,23 @@ class _GuideStepsScreenState extends State<GuideStepsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Step header with actions
+            // Step header with title and actions
             Row(
               children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primary,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                Expanded(
                   child: Text(
-                    'Step ${index + 1}',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onPrimary,
-                      fontSize: 12,
+                    translatedTitle,
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.w600,
+                      height: 1.3,
                     ),
                   ),
                 ),
-                const Spacer(),
                 if (_selectedLanguage != 'en')
                   IconButton(
-                    onPressed: isTranslating ? null : () => _translateStep(step),
+                    onPressed: isTranslating
+                        ? null
+                        : () => _translateStep(step),
                     icon: isTranslating
                         ? SizedBox(
                             width: 16,
@@ -179,20 +171,20 @@ class _GuideStepsScreenState extends State<GuideStepsScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 12),
-            
-            // Step image
+            const SizedBox(height: 16),
+
+            // Step image - larger size
             if (step.imageUrl != null)
               Container(
                 width: double.infinity,
-                height: 200,
+                height: 300,
                 margin: const EdgeInsets.only(bottom: 16),
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(12),
                   color: Theme.of(context).colorScheme.surfaceContainerHighest,
                 ),
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(12),
                   child: Image.network(
                     step.imageUrl!,
                     fit: BoxFit.cover,
@@ -202,7 +194,7 @@ class _GuideStepsScreenState extends State<GuideStepsScreen> {
                         child: CircularProgressIndicator(
                           value: loadingProgress.expectedTotalBytes != null
                               ? loadingProgress.cumulativeBytesLoaded /
-                                  loadingProgress.expectedTotalBytes!
+                                    loadingProgress.expectedTotalBytes!
                               : null,
                         ),
                       );
@@ -210,22 +202,29 @@ class _GuideStepsScreenState extends State<GuideStepsScreen> {
                     errorBuilder: (context, error, stackTrace) {
                       return Container(
                         decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                          borderRadius: BorderRadius.circular(8),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.surfaceContainerHighest,
+                          borderRadius: BorderRadius.circular(12),
                         ),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(
                               Icons.image_not_supported,
-                              size: 48,
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              size: 64,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
                             ),
-                            const SizedBox(height: 8),
+                            const SizedBox(height: 12),
                             Text(
                               'Image not available',
                               style: TextStyle(
-                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                fontSize: 16,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
                               ),
                             ),
                           ],
@@ -235,15 +234,6 @@ class _GuideStepsScreenState extends State<GuideStepsScreen> {
                   ),
                 ),
               ),
-            
-            // Step title
-            Text(
-              translatedTitle,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w600,
-                height: 1.3,
-              ),
-            ),
           ],
         ),
       ),
@@ -252,7 +242,7 @@ class _GuideStepsScreenState extends State<GuideStepsScreen> {
 
   Future<void> _translateStep(StepModel step) async {
     final translationKey = '${step.id}_$_selectedLanguage';
-    
+
     if (_translatedTexts.containsKey(translationKey)) {
       return; // Already translated
     }
@@ -266,7 +256,7 @@ class _GuideStepsScreenState extends State<GuideStepsScreen> {
         step.title,
         _selectedLanguage,
       );
-      
+
       setState(() {
         _translatedTexts[translationKey] = translatedText;
         _loadingTranslations.remove(translationKey);
@@ -276,7 +266,7 @@ class _GuideStepsScreenState extends State<GuideStepsScreen> {
       setState(() {
         _loadingTranslations.remove(translationKey);
       });
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
